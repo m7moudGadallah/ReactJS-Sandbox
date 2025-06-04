@@ -2,97 +2,60 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
+import { data } from "./data";
 
 function App() {
-  const user = {
-    name: "Jonas Schmedtmann",
-    bio: "Full-stack web developer and teacher at Udemy. When not coding or preparing a course, I like to play board games, to cook (and eat), or to just enjoy the Portuguese sun at the beach.",
-    avatar: "jonas.jpeg",
-    skills: [
-      {
-        name: "HTML+CSS",
-        emoji: "💪",
-        color: "blue",
-      },
-      {
-        name: "JavaScript",
-        emoji: "💪",
-        color: "yellow",
-      },
-      {
-        name: "Web Design",
-        emoji: "💪",
-        color: "lightgreen",
-      },
-      {
-        name: "Git & Github",
-        emoji: "💪",
-        color: "lightsalmon",
-      },
-      {
-        name: "React",
-        emoji: "💪",
-        color: "cyan",
-      },
-      {
-        name: "Svelte",
-        emoji: "👶",
-        color: "red",
-      },
-    ],
-  };
-  return <ProfileCard {...user} />;
+  const { user, skillLevel } = data;
+
+  return <ProfileCard user={user} skillLevel={skillLevel} />;
 }
 
-function ProfileCard(props) {
-  const { name, bio, avatar, skills } = props;
+function ProfileCard({ user, skillLevel }) {
   return (
-    <div className="profile-card container">
-      <div className="card__img">
-        <ProfilePhoto src={avatar} alt={name} />
-      </div>
-      <ProfileCardHeader name={name} bio={bio} />
-      <ProfileSkillBox skills={skills} />
+    <div className="profile-card">
+      <ProfileCardPhoto src={user.avatar} alt={user.name} />
+      <ProfileCardHeader name={user.name} bio={user.bio} />
+      <ProfileCardSkills skills={user.skills} skillLevel={skillLevel}/>
     </div>
   );
 }
 
-function ProfilePhoto(props) {
-  const { src, alt } = props;
-
-  return <img src={src} alt={alt} />;
+function ProfileCardPhoto({ src, alt }) {
+  return (
+    <div className="profile-card__photo">
+      <img src={src} alt={alt} />
+    </div>
+  );
 }
 
-function ProfileCardHeader(props) {
-  const { name, bio } = props;
+function ProfileCardHeader({ name, bio }) {
   return (
-    <div className="card__header">
+    <div className="profile-card__header">
       <h2>{name}</h2>
       <p>{bio}</p>
     </div>
   );
 }
 
-function ProfileSkillBox(props) {
-  const { skills } = props;
+function ProfileCardSkills({ skills, skillLevel }) {
   return (
-    <div className="skills-bx">
-      {skills.map((skill, index) => (
-        <ProfileSkill skill={skill} key={index} />
+    <div className="profile-card__skills">
+      {skills.map((skill) => (
+        <ProfileCardSkill
+          key={skill.name}
+          skill={skill}
+          skillLevel={skillLevel}
+        />
       ))}
     </div>
   );
 }
 
-function ProfileSkill(props) {
-  const { name, emoji, color } = props.skill;
+function ProfileCardSkill({ skill, skillLevel }) {
   return (
-    <div className={`skill--${color}`}>
-      <span className="skill__name">
-        {name}
-        <span className="skill__emoji">{emoji}</span>
-      </span>
-    </div>
+    <span className="skill" style={{backgroundColor: skill.color}}>
+      {`${skill.name}${skillLevel?.[skill.level] || ""}`}
+    </span>
   );
 }
 
