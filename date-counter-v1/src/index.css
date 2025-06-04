@@ -1,0 +1,47 @@
+* {
+  --color__gray-900: #212529;
+  --color__gray-400: #ced4da;
+  --color_gray-200: #e9ecef;
+  --color_gray: #f8f9fa;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+.app-container {
+  width: 50vw;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  background-color: var(--color__gray-400);
+  border-radius: 2rem;
+  margin-top: 5rem;
+}
+
+.counter {
+  width: 50%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.counter button {
+  background-color: var(--color__gray-900);
+  color: var(--color_gray);
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  border-radius: 0.5rem;
+}
