@@ -8,16 +8,12 @@ export default function StepSliderControl({
 }) {
   return (
     <div className="buttons">
-      <Button
-        content="Previous"
-        onClick={previousHandler}
-        disabled={currStep === 1}
-      />
-      <Button
-        content="Next"
-        onClick={nextHandler}
-        disabled={currStep >= numOfSteps}
-      />
+      <Button onClick={previousHandler} disabled={currStep === 1}>
+        <span>👈 Previous</span>
+      </Button>
+      <Button onClick={nextHandler} disabled={currStep >= numOfSteps}>
+        <span>👉 Next</span>
+      </Button>
     </div>
   );
 }

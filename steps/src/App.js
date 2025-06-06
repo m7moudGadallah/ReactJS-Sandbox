@@ -1,7 +1,7 @@
 import { useState } from "react";
-import StepNumberIndicatorBar from "./Components/StepNumberIndicatorBar";
-import StepMessage from "./Components/StepMessage";
-import StepSliderControl from "./Components/StepSliderControl";
+import StepNumberIndicatorBar from "./components/StepNumberIndicatorBar";
+import StepMessage from "./components/StepMessage";
+import StepSliderControl from "./components/StepSliderControl";
 
 export default function App() {
   const steps = [
