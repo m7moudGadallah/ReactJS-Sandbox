@@ -18,6 +18,10 @@ export default function App() {
     setItems((items) => items.filter((x) => x.id !== id));
   }
 
+  function handleClearItemList() {
+    window.confirm("Are you sure to delete all items?") && setItems([]);
+  }
+
   function handlePackedCheck(id) {
     setItems((items) =>
       items.map((item) =>
@@ -27,7 +31,6 @@ export default function App() {
   }
 
   const packedCount = items.reduce((acc, curr) => acc + curr.packed, 0);
-  const packedPercentage = Math.round((packedCount / items.length) * 100);
 
   return (
     <div className="app">
@@ -37,12 +40,9 @@ export default function App() {
         items={items}
         deleteHandler={handleDeleteItem}
         packedHandler={handlePackedCheck}
+        clearHandler={handleClearItemList}
       />
-      <Stats
-        itemsCount={items.length}
-        packedCount={packedCount}
-        packedPercentage={packedPercentage}
-      />
+      <Stats itemsCount={items.length} packedCount={packedCount} />
     </div>
   );
 }

@@ -95,6 +95,10 @@ input {
   font-size: 1.4rem;
   font-weight: 700;
   margin: 0 0.8rem;
+  background-color: #ffebb3;
+  color: #5a3e2b;
+  border: none;
+  border-radius: 10rem;
 }
 
 .list ul {

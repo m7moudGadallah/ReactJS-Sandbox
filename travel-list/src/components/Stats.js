@@ -1,4 +1,5 @@
-export default function Stats({ itemsCount, packedCount, packedPercentage }) {
+export default function Stats({ itemsCount, packedCount }) {
+  const packedPercentage = Math.round((packedCount / itemsCount) * 100);
   return (
     <footer className="stats">
       <em>
