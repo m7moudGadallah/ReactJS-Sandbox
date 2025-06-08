@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { tempMovieData, tempWatchedData } from "./data";
+import StarRating from "./StarRating";
 
 export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -48,6 +49,11 @@ export default function App() {
           element={
             <>
               <WatchedListSummary watched={watched} />
+              {/* TODO: Remove it just for testing */}
+              <div className="rating">
+                <StarRating maxRating={10} />
+                <button className="btn-add">+ Add list</button>
+              </div>
               <MovieList movies={watched} />
             </>
           }
