@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 
 const styles = {
   mainContainer: {
@@ -18,12 +19,25 @@ const styles = {
   },
 };
 
+StarRating.propTypes = {
+  maxRating: PropTypes.number,
+  // maxRating: PropTypes.number.isRequired,
+  initRating: PropTypes.number,
+  size: PropTypes.string,
+  color: PropTypes.string,
+  className: PropTypes.string,
+  onRatingChange: PropTypes.func,
+  children: PropTypes.node,
+};
+
 export default function StarRating({
   maxRating = 5,
   initRating = 0,
   size = "2rem",
-  children,
   color = "#fcc419",
+  className = "",
+  onRatingChange,
+  children,
 }) {
   const [rating, setRating] = useState(initRating);
   const [selectedStar, setSelectedStar] = useState(initRating);
@@ -32,8 +46,13 @@ export default function StarRating({
     setSelectedStar(rating);
   }, [rating]);
 
+  function updateRating(rating) {
+    setRating(rating);
+    onRatingChange && onRatingChange(rating);
+  }
+
   return (
-    <div style={styles.mainContainer}>
+    <div style={styles.mainContainer} className={className}>
       <div style={styles.starsContainer}>
         {Array.from({ length: maxRating }, (_, index) => (
           <Star
@@ -41,7 +60,7 @@ export default function StarRating({
             size={size}
             onHoverIn={() => setSelectedStar(index + 1)}
             onHoverOut={() => setSelectedStar(rating)}
-            onClick={() => setRating(index + 1)}
+            onClick={() => updateRating(index + 1)}
             full={index < selectedStar}
             strokeColor={color}
             fillColor={color}
