@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { tempMovieData, tempWatchedData } from "./data";
+import { tempWatchedData } from "./data";
 import StarRating from "./StarRating";
 
 export default function App() {
+  const omdbApikey = process.env?.REACT_APP_OMDB_API_KEY;
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -13,7 +14,7 @@ export default function App() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const results = await fetchMovies({ searchQuery });
+        const results = await fetchMovies(omdbApikey, { searchQuery });
         setSearchResults(results);
       } catch (err) {
         // console.error("Error fetching movies:", err);
@@ -184,18 +185,28 @@ function calcAvg(vals) {
   return vals.reduce((acc, curr, _, arr) => acc + curr / arr.length, 0);
 }
 
-function fetchMovies({ searchQuery }) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const response = searchQuery
-        ? tempMovieData.filter((movies) =>
-            movies.title
-              .toLowerCase()
-              .startsWith(searchQuery.trim().toLowerCase())
-          )
-        : tempMovieData;
+async function fetchMovies(apiKey, { searchQuery }) {
+  const res = await fetch(
+    `http://www.omdbapi.com/?apikey=${apiKey}&s=${
+      searchQuery ? searchQuery : "Interstellar"
+    }`
+  );
 
-      resolve(response);
-    }, 500);
-  });
+  if (!res.ok) throw new Error("Something went wrong with fetching movies");
+
+  const data = await res.json();
+
+  if (data?.Response === "False") {
+    throw new Error("Can't find any movies!");
+  }
+
+  const movies = data.Search;
+
+  return movies.map((movie) => ({
+    imdbID: movie.imdbID,
+    title: movie.Title,
+    year: movie.Year,
+    type: movie.Type,
+    poster: movie.Poster,
+  }));
 }
