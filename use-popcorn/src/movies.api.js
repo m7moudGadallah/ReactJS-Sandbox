@@ -42,6 +42,12 @@ class MoviesApi {
       year: movie.Year,
       type: movie.Type,
       poster: movie.Poster,
+      released: movie?.Released,
+      runtime: movie?.Runtime,
+      imdbRating: movie?.imdbRating,
+      actors: movie?.Actors,
+      director: movie?.Director,
+      plot: movie?.Plot,
     };
   }
 }

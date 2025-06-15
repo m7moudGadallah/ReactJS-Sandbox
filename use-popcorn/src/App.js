@@ -8,8 +8,12 @@ export default function App() {
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
-  const watched = tempWatchedData;
+  const [watched, setWatched] = useState(tempWatchedData);
   const [selectedMovieId, setSelectedMovieId] = useState(null);
+
+  function handleAddNewWatched(movie) {
+    setWatched((w) => [...w, movie]);
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,15 +59,11 @@ export default function App() {
               <MovieDetails
                 movieId={selectedMovieId}
                 onClose={() => setSelectedMovieId(null)}
+                handleAddNewWatched={handleAddNewWatched}
               />
             ) : (
               <>
                 <WatchedListSummary watched={watched} />
-                {/* TODO: Remove it just for testing */}
-                <div className="rating">
-                  <StarRating maxRating={10} />
-                  <button className="btn-add">+ Add list</button>
-                </div>
                 <MovieList
                   movies={watched}
                   selectMovieHandler={setSelectedMovieId}
@@ -77,13 +77,71 @@ export default function App() {
   );
 }
 
-function MovieDetails({ movieId, onClose }) {
+function MovieDetails({ movieId, onClose, handleAddNewWatched }) {
+  const [isLoading, setIsLoading] = useState(true);
+  const [movie, setMovie] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const movie = await moviesApi.getMovieById(movieId);
+        setMovie(movie);
+      } catch (err) {
+        setErrorMessage(err.message);
+        setMovie(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+
+    return () => setErrorMessage("");
+  }, [movieId]);
+
   return (
-    <div>
+    <div className="details">
       <button className="btn-back" onClick={onClose}>
         &larr;
       </button>
-      <div></div>
+      <div>
+        {isLoading && <p className="loader">Loading...</p>}
+        {errorMessage && <p className="error">{errorMessage}</p>}
+        {!isLoading && !errorMessage && (
+          <>
+            <header>
+              <img src={movie.poster} alt={`Poster of ${movie.title}`} />
+              <div className="details-overview">
+                <h2>{movie.title}</h2>
+                <p>
+                  {movie.released} &bull; {movie.runtime}
+                </p>
+                <p>
+                  <span>⭐</span> {movie.imdbRating} IMDb rating
+                </p>
+              </div>
+            </header>
+            <section>
+              <div className="rating">
+                <StarRating maxRating={10} />
+                <button
+                  className="btn-add"
+                  onClick={() => handleAddNewWatched(movie)}
+                >
+                  + Add list
+                </button>
+              </div>
+              <p>
+                <em>{movie.plot}</em>
+              </p>
+              <p>Starring {movie.actors}</p>
+              <p>Directed by {movie.director}</p>
+            </section>
+          </>
+        )}
+      </div>
     </div>
   );
 }
