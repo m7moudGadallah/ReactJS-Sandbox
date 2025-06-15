@@ -54,6 +54,7 @@ export default function App() {
       </div>
       {selectedBillSplitForm && (
         <SplitBillForm
+          key={selectedBillSplitForm.id}
           friend={selectedBillSplitForm}
           onSubmit={onSplitFormSubmit}
           setSelectedBillSplitForm={setSelectedBillSplitForm}
