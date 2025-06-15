@@ -1,23 +1,23 @@
 import { useEffect, useState } from "react";
 import { tempWatchedData } from "./data";
 import StarRating from "./StarRating";
+import moviesApi from "./movies.api";
 
 export default function App() {
-  const omdbApikey = process.env?.REACT_APP_OMDB_API_KEY;
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const watched = tempWatchedData;
+  const [selectedMovieId, setSelectedMovieId] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const results = await fetchMovies(omdbApikey, { searchQuery });
+        const results = await moviesApi.getMovies({ searchQuery });
         setSearchResults(results);
       } catch (err) {
-        // console.error("Error fetching movies:", err);
         setErrorMessage(err.message);
         setSearchResults([]);
       } finally {
@@ -42,25 +42,49 @@ export default function App() {
             <>
               {isLoading && <p className="loader">Loading...</p>}
               {errorMessage && <p className="error">{errorMessage}</p>}
-              <MovieList movies={searchResults} />
+              <MovieList
+                movies={searchResults}
+                selectMovieHandler={setSelectedMovieId}
+              />
             </>
           }
         />
         <Box
           element={
-            <>
-              <WatchedListSummary watched={watched} />
-              {/* TODO: Remove it just for testing */}
-              <div className="rating">
-                <StarRating maxRating={10} />
-                <button className="btn-add">+ Add list</button>
-              </div>
-              <MovieList movies={watched} />
-            </>
+            selectedMovieId ? (
+              <MovieDetails
+                movieId={selectedMovieId}
+                onClose={() => setSelectedMovieId(null)}
+              />
+            ) : (
+              <>
+                <WatchedListSummary watched={watched} />
+                {/* TODO: Remove it just for testing */}
+                <div className="rating">
+                  <StarRating maxRating={10} />
+                  <button className="btn-add">+ Add list</button>
+                </div>
+                <MovieList
+                  movies={watched}
+                  selectMovieHandler={setSelectedMovieId}
+                />
+              </>
+            )
           }
         />
       </Main>
     </>
+  );
+}
+
+function MovieDetails({ movieId, onClose }) {
+  return (
+    <div>
+      <button className="btn-back" onClick={onClose}>
+        &larr;
+      </button>
+      <div></div>
+    </div>
   );
 }
 
@@ -153,19 +177,27 @@ function SearchBar({ placeholder, onSearch }) {
   );
 }
 
-function MovieList({ movies }) {
+function MovieList({ movies, selectMovieHandler }) {
   return (
     <ul className="list">
       {movies.map((movie) => (
-        <MovieListItem key={movie.imdbID} movie={movie} />
+        <MovieListItem
+          key={movie.imdbID}
+          movie={movie}
+          clickHandler={() =>
+            selectMovieHandler((selectedId) =>
+              selectedId === movie.imdbID ? null : movie.imdbID
+            )
+          }
+        />
       ))}
     </ul>
   );
 }
 
-function MovieListItem({ movie }) {
+function MovieListItem({ movie, clickHandler }) {
   return (
-    <li>
+    <li onClick={clickHandler} style={{ cursor: "pointer" }}>
       <img src={movie.poster} alt={movie.title} />
       <h3>{movie.title}</h3>
     </li>
@@ -183,30 +215,4 @@ function ToggleButton({ isOpen, onClick }) {
 //  utils
 function calcAvg(vals) {
   return vals.reduce((acc, curr, _, arr) => acc + curr / arr.length, 0);
-}
-
-async function fetchMovies(apiKey, { searchQuery }) {
-  const res = await fetch(
-    `http://www.omdbapi.com/?apikey=${apiKey}&s=${
-      searchQuery ? searchQuery : "Interstellar"
-    }`
-  );
-
-  if (!res.ok) throw new Error("Something went wrong with fetching movies");
-
-  const data = await res.json();
-
-  if (data?.Response === "False") {
-    throw new Error("Can't find any movies!");
-  }
-
-  const movies = data.Search;
-
-  return movies.map((movie) => ({
-    imdbID: movie.imdbID,
-    title: movie.Title,
-    year: movie.Year,
-    type: movie.Type,
-    poster: movie.Poster,
-  }));
 }
