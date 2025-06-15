@@ -69,6 +69,10 @@ function TabContent({ item }) {
     setLikes(likes + 1);
   }
 
+  function handleTripleInc() {
+    setLikes((likes) => likes + 3);
+  }
+
   return (
     <div className="tab-content">
       <h4>{item.summary}</h4>
@@ -82,7 +86,7 @@ function TabContent({ item }) {
         <div className="hearts-counter">
           <span>{likes} ❤️</span>
           <button onClick={handleInc}>+</button>
-          <button>+++</button>
+          <button onClick={handleTripleInc}>+++</button>
         </div>
       </div>
 
