@@ -16,6 +16,11 @@ export default function App() {
     setWatched(watchedMoviesApi.get());
   }
 
+  function deleteWatchedMovieHandler(imdbID) {
+    watchedMoviesApi.delete(imdbID);
+    setWatched(watchedMoviesApi.get());
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -50,6 +55,7 @@ export default function App() {
               <MovieList
                 movies={searchResults}
                 selectMovieHandler={setSelectedMovieId}
+                ItemComponent={MovieListItem}
               />
             </>
           }
@@ -68,6 +74,12 @@ export default function App() {
                 <MovieList
                   movies={watched}
                   selectMovieHandler={setSelectedMovieId}
+                  ItemComponent={(props) => (
+                    <WatchedListMovieItem
+                      {...props}
+                      deleteMovieHandler={deleteWatchedMovieHandler}
+                    />
+                  )}
                 />
               </>
             )
@@ -82,7 +94,7 @@ function MovieDetails({ movieId, onClose, upsertWatchedMovieHandler }) {
   const [isLoading, setIsLoading] = useState(true);
   const [movie, setMovie] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
-  const [rating, setRating] = useState(0);
+  const [userRating, setUserRating] = useState(0);
   const [isWatched, setIsWatched] = useState(true);
 
   useEffect(() => {
@@ -90,7 +102,7 @@ function MovieDetails({ movieId, onClose, upsertWatchedMovieHandler }) {
       setIsLoading(true);
       try {
         let result = watchedMoviesApi.getById(movieId);
-        setRating(result?.rating ?? 0);
+        setUserRating(result?.userRating ?? 0);
 
         if (!result) {
           setIsWatched(false);
@@ -137,15 +149,15 @@ function MovieDetails({ movieId, onClose, upsertWatchedMovieHandler }) {
               <div className="rating">
                 <StarRating
                   maxRating={10}
-                  initRating={rating}
-                  onRatingChange={setRating}
+                  initRating={userRating}
+                  onRatingChange={setUserRating}
                 />
                 <button
                   className="btn-add"
                   onClick={() =>
                     upsertWatchedMovieHandler({
                       ...movie,
-                      rating,
+                      userRating,
                     })
                   }
                 >
@@ -254,11 +266,11 @@ function SearchBar({ placeholder, onSearch }) {
   );
 }
 
-function MovieList({ movies, selectMovieHandler }) {
+function MovieList({ movies, selectMovieHandler, ItemComponent }) {
   return (
     <ul className="list">
       {movies.map((movie) => (
-        <MovieListItem
+        <ItemComponent
           key={movie.imdbID}
           movie={movie}
           clickHandler={() =>
@@ -277,6 +289,38 @@ function MovieListItem({ movie, clickHandler }) {
     <li onClick={clickHandler} style={{ cursor: "pointer" }}>
       <img src={movie.poster} alt={movie.title} />
       <h3>{movie.title}</h3>
+    </li>
+  );
+}
+
+function WatchedListMovieItem({ movie, clickHandler, deleteMovieHandler }) {
+  return (
+    <li onClick={clickHandler} style={{ cursor: "pointer" }}>
+      <img src={movie.poster} alt={movie.title} />
+      <h3>{movie.title}</h3>
+      <div>
+        <p>
+          <span>⭐</span>
+          <span>{movie.imdbRating}</span>
+        </p>
+        <p>
+          <span>⭐</span>
+          <span>{movie?.userRating ?? 0}</span>
+        </p>
+        <p>
+          <span>⌛</span>
+          <span>{movie.runtime}</span>
+        </p>
+      </div>
+      <button
+        class="btn-delete"
+        onClick={(e) => {
+          e.stopPropagation();
+          deleteMovieHandler(movie.imdbID);
+        }}
+      >
+        X
+      </button>
     </li>
   );
 }
