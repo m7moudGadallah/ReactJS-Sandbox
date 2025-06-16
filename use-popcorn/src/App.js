@@ -11,6 +11,10 @@ export default function App() {
   const [watched, setWatched] = useState(watchedMoviesApi.get());
   const [selectedMovieId, setSelectedMovieId] = useState(null);
 
+  function handleCloseSelectedMovieTab() {
+    setSelectedMovieId(null);
+  }
+
   function upsertWatchedMovieHandler(movie) {
     watchedMoviesApi.upsert(movie);
     setWatched(watchedMoviesApi.get());
@@ -31,6 +35,7 @@ export default function App() {
           signal: abortController.signal,
         });
         setSearchResults(results);
+        setErrorMessage(""); // Clean up errors
       } catch (err) {
         setErrorMessage(err.message);
         setSearchResults([]);
@@ -42,7 +47,6 @@ export default function App() {
     fetchData();
 
     return () => {
-      setErrorMessage("");
       abortController.abort();
     };
   }, [searchQuery]);
@@ -72,7 +76,7 @@ export default function App() {
             selectedMovieId ? (
               <MovieDetails
                 movieId={selectedMovieId}
-                onClose={() => setSelectedMovieId(null)}
+                onClose={handleCloseSelectedMovieTab}
                 upsertWatchedMovieHandler={upsertWatchedMovieHandler}
               />
             ) : (
@@ -103,6 +107,21 @@ function MovieDetails({ movieId, onClose, upsertWatchedMovieHandler }) {
   const [errorMessage, setErrorMessage] = useState("");
   const [userRating, setUserRating] = useState(0);
   const [isWatched, setIsWatched] = useState(true);
+
+  useEffect(
+    function () {
+      const callback = (e) => {
+        if (e.code === "Escape") {
+          onClose();
+        }
+      };
+
+      document.addEventListener("keydown", callback);
+
+      return () => document.removeEventListener("keydown", callback);
+    },
+    [onClose]
+  );
 
   useEffect(
     function () {
