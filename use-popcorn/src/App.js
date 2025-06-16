@@ -11,7 +11,7 @@ export default function App() {
   const [watched, setWatched] = useState(watchedMoviesApi.get());
   const [selectedMovieId, setSelectedMovieId] = useState(null);
 
-  function handleAddNewWatched(movie) {
+  function upsertWatchedMovieHandler(movie) {
     watchedMoviesApi.upsert(movie);
     setWatched(watchedMoviesApi.get());
   }
@@ -60,7 +60,7 @@ export default function App() {
               <MovieDetails
                 movieId={selectedMovieId}
                 onClose={() => setSelectedMovieId(null)}
-                handleAddNewWatched={handleAddNewWatched}
+                upsertWatchedMovieHandler={upsertWatchedMovieHandler}
               />
             ) : (
               <>
@@ -78,20 +78,22 @@ export default function App() {
   );
 }
 
-function MovieDetails({ movieId, onClose, handleAddNewWatched }) {
+function MovieDetails({ movieId, onClose, upsertWatchedMovieHandler }) {
   const [isLoading, setIsLoading] = useState(true);
   const [movie, setMovie] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [rating, setRating] = useState(0);
+  const [isWatched, setIsWatched] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
         let result = watchedMoviesApi.getById(movieId);
-        setRating((rating) => result?.rating ?? 0);
+        setRating(result?.rating ?? 0);
 
         if (!result) {
+          setIsWatched(false);
           result = await moviesApi.getMovieById(movieId);
         }
 
@@ -133,17 +135,21 @@ function MovieDetails({ movieId, onClose, handleAddNewWatched }) {
             </header>
             <section>
               <div className="rating">
-                <StarRating maxRating={10} />
+                <StarRating
+                  maxRating={10}
+                  initRating={rating}
+                  onRatingChange={setRating}
+                />
                 <button
                   className="btn-add"
                   onClick={() =>
-                    handleAddNewWatched({
+                    upsertWatchedMovieHandler({
                       ...movie,
                       rating,
                     })
                   }
                 >
-                  + Add list
+                  {isWatched ? "Update" : "+ Add list"}
                 </button>
               </div>
               <p>
