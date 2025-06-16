@@ -97,6 +97,11 @@ function MovieDetails({ movieId, onClose, upsertWatchedMovieHandler }) {
   const [userRating, setUserRating] = useState(0);
   const [isWatched, setIsWatched] = useState(true);
 
+  useEffect(function () {
+    document.title = `Movie | ${movie?.title ?? ""}`;
+    return () => (document.title = "React App");
+  }, [movie]);
+
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
