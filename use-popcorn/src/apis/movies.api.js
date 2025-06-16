@@ -7,9 +7,10 @@ class MoviesApi {
     this.#baseUrl = `http://www.omdbapi.com/?apikey=${apiKey}`;
   }
 
-  async getMovies({ searchQuery }) {
+  async getMovies({ searchQuery, signal }) {
     const res = await fetch(
-      `${this.#baseUrl}&s=${searchQuery ? searchQuery : "Interstellar"}`
+      `${this.#baseUrl}&s=${searchQuery ? searchQuery : "Interstellar"}`,
+      { signal }
     );
 
     if (!res.ok) throw new Error("Something went wrong with fetching movies");
@@ -25,8 +26,10 @@ class MoviesApi {
     return movies.map((movie) => this.#movieMapping(movie));
   }
 
-  async getMovieById(id) {
-    const res = await fetch(`${this.#baseUrl}&i=${id}&plot=full`);
+  async getMovieById({ imdbID, signal }) {
+    const res = await fetch(`${this.#baseUrl}&i=${imdbID}&plot=full`, {
+      signal,
+    });
 
     if (!res.ok) throw new Error("Something went wrong with fetching movie");
 

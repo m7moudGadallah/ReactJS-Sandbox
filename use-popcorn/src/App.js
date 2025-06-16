@@ -115,7 +115,7 @@ function MovieDetails({ movieId, onClose, upsertWatchedMovieHandler }) {
 
         if (!result) {
           setIsWatched(false);
-          result = await moviesApi.getMovieById(movieId);
+          result = await moviesApi.getMovieById({imdbID: movieId});
         }
 
         setMovie(result);
