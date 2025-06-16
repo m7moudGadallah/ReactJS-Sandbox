@@ -22,10 +22,14 @@ export default function App() {
   }
 
   useEffect(() => {
+    const abortController = new AbortController();
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const results = await moviesApi.getMovies({ searchQuery });
+        const results = await moviesApi.getMovies({
+          searchQuery,
+          signal: abortController.signal,
+        });
         setSearchResults(results);
       } catch (err) {
         setErrorMessage(err.message);
@@ -37,7 +41,10 @@ export default function App() {
 
     fetchData();
 
-    return () => setErrorMessage("");
+    return () => {
+      setErrorMessage("");
+      abortController.abort();
+    };
   }, [searchQuery]);
 
   return (
@@ -115,7 +122,7 @@ function MovieDetails({ movieId, onClose, upsertWatchedMovieHandler }) {
 
         if (!result) {
           setIsWatched(false);
-          result = await moviesApi.getMovieById({imdbID: movieId});
+          result = await moviesApi.getMovieById({ imdbID: movieId });
         }
 
         setMovie(result);
