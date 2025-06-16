@@ -1,18 +1,19 @@
 import { useEffect, useState } from "react";
-import { tempWatchedData } from "./data";
 import StarRating from "./StarRating";
-import moviesApi from "./movies.api";
+import moviesApi from "./apis/movies.api";
+import watchedMoviesApi from "./apis/watched-movies.api";
 
 export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
-  const [watched, setWatched] = useState(tempWatchedData);
+  const [watched, setWatched] = useState(watchedMoviesApi.get());
   const [selectedMovieId, setSelectedMovieId] = useState(null);
 
   function handleAddNewWatched(movie) {
-    setWatched((w) => [...w, movie]);
+    watchedMoviesApi.upsert(movie);
+    setWatched(watchedMoviesApi.get());
   }
 
   useEffect(() => {
@@ -81,13 +82,20 @@ function MovieDetails({ movieId, onClose, handleAddNewWatched }) {
   const [isLoading, setIsLoading] = useState(true);
   const [movie, setMovie] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [rating, setRating] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const movie = await moviesApi.getMovieById(movieId);
-        setMovie(movie);
+        let result = watchedMoviesApi.getById(movieId);
+        setRating((rating) => result?.rating ?? 0);
+
+        if (!result) {
+          result = await moviesApi.getMovieById(movieId);
+        }
+
+        setMovie(result);
       } catch (err) {
         setErrorMessage(err.message);
         setMovie(null);
@@ -128,7 +136,12 @@ function MovieDetails({ movieId, onClose, handleAddNewWatched }) {
                 <StarRating maxRating={10} />
                 <button
                   className="btn-add"
-                  onClick={() => handleAddNewWatched(movie)}
+                  onClick={() =>
+                    handleAddNewWatched({
+                      ...movie,
+                      rating,
+                    })
+                  }
                 >
                   + Add list
                 </button>
